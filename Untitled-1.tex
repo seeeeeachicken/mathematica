@@ -1,0 +1,74 @@
+\documentclass[12pt,a4pepar]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{amsthm}
+\usepackage{bm}
+\usepackage{tikz}
+%\usepackage{framed}
+\usepackage{ascmac}
+%\usepackage{cancel}
+\usepackage{mathrsfs}
+\usepackage[noadjust]{cite}
+\usepackage{mathtools}\mathtoolsset{showonlyrefs=true}
+%\usepackage[useregional]{datetime2}
+
+%text font
+%\usepackage[math]{anttor}
+\let\Bbbk\relax\usepackage{newtxtext}
+\usepackage[lite,subscriptcorrection,slantedGreek,nofontinfo]{mtpro2}
+\usepackage{bbold}
+%\usepackage{newtxmath}
+%\usepackage{mbboard}
+%\usepackage[condensed,math]{kurier}
+
+\setlength{\textwidth}{\paperwidth}     % 紙面横幅を本文領域にする（RIGHT=-LEFT）
+\setlength{\oddsidemargin}{-0.4truemm}  % 左の余白を25mm(=1inch-0.4mm)に
+\setlength{\evensidemargin}{-0.4truemm} % 
+\addtolength{\textwidth}{-50truemm}     % 右の余白も25mm（RIGHT=-LEFT）
+
+\title{New Template}
+\author{19lc001a Kento Fujita}
+\pagestyle{myheadings}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{conjecture}{Conjecture}[section]
+\newtheorem{lemma}{Lemma}[section]
+\newtheorem{corollary}{Corollary}[section]
+\newtheorem{proposition}{Proposition}[section]
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\numberwithin{equation}{section}
+
+
+\DeclareMathOperator{\dep}{dep}
+\DeclareMathOperator{\wt}{wt}
+\DeclareMathOperator{\height}{ht}
+\DeclareMathOperator{\Li}{Li}
+\newcommand{\myLi}{\mathscr{L}}
+\newcommand{\hgf}[5]{{\mathchoice%
+{{}_{#1}F_{#2}\!\left(\genfrac{}{}{0pt}{}{#3}{#4}\,;\,#5\right)}% display mode
+{{}_{#1}F_{#2}(#3;#4;#5)}% text mode
+{}{}}}
+\def\us#1_#2{\underset{#2}{#1}}
+\def\os#1^#2{\overset{#2}{#1}}
+\DeclareFontFamily{U}{wncy}{}
+\DeclareFontShape{U}{wncy}{m}{n}{<->wncyr10}{}
+\DeclareSymbolFont{mcy}{U}{wncy}{m}{n}
+\DeclareMathSymbol{\Sh}{\mathord}{mcy}{`X}
+\DeclareMathSymbol{\sh}{\mathord}{mcy}{`x}
+\renewcommand{\boldsymbol}[1]{\text{\bf textit{#1}}}
+
+
+\begin{document}
+\maketitle
+\begin{equation}
+    \boldsymbol{k}
+\end{equation}
+
+
+\end{document}

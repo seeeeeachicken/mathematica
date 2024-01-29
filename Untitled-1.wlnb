@@ -1,0 +1,192 @@
+{
+ "cells": [
+  {
+   "kind": 2,
+   "value": "f[m_]:=1+10^(m)+10^(2m)",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {
+    "timing": {
+     "startTime": 1648552101548,
+     "endTime": 1648552101614
+    },
+    "executionOrder": 1,
+    "success": true
+   }
+  },
+  {
+   "kind": 2,
+   "value": "Table[{3m+2,f[3m+2]/37//Head},{m,1,100}]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>5</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>8</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>11</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>14</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>17</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>20</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>23</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>26</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>29</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>32</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>35</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>38</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>41</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>44</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>47</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>50</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>53</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>56</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>59</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>62</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>65</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>68</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>71</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>74</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>77</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>80</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>83</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>86</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>89</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>92</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>95</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>98</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>101</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>104</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>107</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>110</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>113</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>116</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>119</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>122</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>125</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>128</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>131</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>134</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>137</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>140</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>143</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>146</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>149</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>152</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>155</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>158</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>161</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>164</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>167</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>170</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>173</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>176</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>179</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>182</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>185</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>188</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>191</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>194</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>197</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>200</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>203</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>206</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>209</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>212</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>215</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>218</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>221</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>224</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>227</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>230</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>233</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>236</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>239</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>242</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>245</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>248</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>251</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>254</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>257</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>260</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>263</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>266</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>269</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>272</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>275</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>278</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>281</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>284</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>287</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>290</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>293</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>296</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>299</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>302</w><w>,</w><w>Integer</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "{{5, Integer}, {8, Integer}, {11, Integer}, {14, Integer}, {17, Integer}, {20, Integer}, {23, Integer}, {26, Integer}, {29, Integer}, {32, Integer}, {35, Integer}, {38, Integer}, {41, Integer}, {44, Integer}, {47, Integer}, {50, Integer}, {53, Integer}, {56, Integer}, {59, Integer}, {62, Integer}, {65, Integer}, {68, Integer}, {71, Integer}, {74, Integer}, {77, Integer}, {80, Integer}, {83, Integer}, {86, Integer}, {89, Integer}, {92, Integer}, {95, Integer}, {98, Integer}, {101, Integer}, {104, Integer}, {107, Integer}, {110, Integer}, {113, Integer}, {116, Integer}, {119, Integer}, {122, Integer}, {125, Integer}, {128, Integer}, {131, Integer}, {134, Integer}, {137, Integer}, {140, Integer}, {143, Integer}, {146, Integer}, {149, Integer}, {152, Integer}, {155, Integer}, {158, Integer}, {161, Integer}, {164, Integer}, {167, Integer}, {170, Integer}, {173, Integer}, {176, Integer}, {179, Integer}, {182, Integer}, {185, Integer}, {188, Integer}, {191, Integer}, {194, Integer}, {197, Integer}, {200, Integer}, {203, Integer}, {206, Integer}, {209, Integer}, {212, Integer}, {215, Integer}, {218, Integer}, {221, Integer}, {224, Integer}, {227, Integer}, {230, Integer}, {233, Integer}, {236, Integer}, {239, Integer}, {242, Integer}, {245, Integer}, {248, Integer}, {251, Integer}, {254, Integer}, {257, Integer}, {260, Integer}, {263, Integer}, {266, Integer}, {269, Integer}, {272, Integer}, {275, Integer}, {278, Integer}, {281, Integer}, {284, Integer}, {287, Integer}, {290, Integer}, {293, Integer}, {296, Integer}, {299, Integer}, {302, Integer}}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "aa72635e-fcf2-428f-96c4-923473e13370",
+     "metadata": {
+      "cellLabel": "Out[22]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {
+    "timing": {
+     "startTime": 1648562099387,
+     "endTime": 1648562099526
+    },
+    "executionOrder": 22,
+    "success": true
+   }
+  },
+  {
+   "kind": 2,
+   "value": "Table[FactorInteger[10^(3k)-1],{k,1,10}]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>3</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>3</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>7</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>11</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>13</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>4</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>333667</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>3</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>7</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>11</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>13</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>101</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>9901</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>3</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>31</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>41</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>271</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>2906161</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>4</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>7</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>11</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>13</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>19</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>52579</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>333667</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>3</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>43</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>239</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>1933</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>4649</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>10838689</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>3</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>7</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>11</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>13</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>73</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>101</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>137</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>9901</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>99990001</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>5</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>757</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>333667</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>440334654777631</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><wrow><w></w><w>3</w><w>,</w><w>3</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>7</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>11</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>13</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>31</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>37</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>41</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>211</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>241</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>271</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>2161</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>9091</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><wrow><w></w><w>2906161</w><w>,</w><w>1</w></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow></wrow><wb>}</wb></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "{{{3, 3}, {37, 1}}, {{3, 3}, {7, 1}, {11, 1}, {13, 1}, {37, 1}}, {{3, 4}, {37, 1}, {333667, 1}}, {{3, 3}, {7, 1}, {11, 1}, {13, 1}, {37, 1}, {101, 1}, {9901, 1}}, {{3, 3}, {31, 1}, {37, 1}, {41, 1}, {271, 1}, {2906161, 1}}, {{3, 4}, {7, 1}, {11, 1}, {13, 1}, {19, 1}, {37, 1}, {52579, 1}, {333667, 1}}, {{3, 3}, {37, 1}, {43, 1}, {239, 1}, {1933, 1}, {4649, 1}, {10838689, 1}}, {{3, 3}, {7, 1}, {11, 1}, {13, 1}, {37, 1}, {73, 1}, {101, 1}, {137, 1}, {9901, 1}, {99990001, 1}}, {{3, 5}, {37, 1}, {757, 1}, {333667, 1}, {440334654777631, 1}}, {{3, 3}, {7, 1}, {11, 1}, {13, 1}, {31, 1}, {37, 1}, {41, 1}, {211, 1}, {241, 1}, {271, 1}, {2161, 1}, {9091, 1}, {2906161, 1}}}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "16994d3f-dd49-48f3-85dc-845e5f532cd6",
+     "metadata": {
+      "cellLabel": "Out[11]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {
+    "timing": {
+     "startTime": 1648552481408,
+     "endTime": 1648552481544
+    },
+    "executionOrder": 11,
+    "success": true
+   }
+  },
+  {
+   "kind": 2,
+   "value": "Table[10^{6k}-1,{k,1,10}]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wb>{</wb><wrow><w></w><wrow><w></w><wb>{</wb><w>999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999999999999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999999999999999999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999999999999999999999999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999999999999999999999999999999999999999</w><wb>}</wb></wrow><w>,</w><wrow><w></w><wb>{</wb><w>999999999999999999999999999999999999999999999999999999999999</w><wb>}</wb></wrow></wrow><wb>}</wb></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "{{999999}, {999999999999}, {999999999999999999}, {999999999999999999999999}, {999999999999999999999999999999}, {999999999999999999999999999999999999}, {999999999999999999999999999999999999999999}, {999999999999999999999999999999999999999999999999}, {999999999999999999999999999999999999999999999999999999}, {999999999999999999999999999999999999999999999999999999999999}}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "285b2c0b-1517-49cb-80ea-b2da31efa522",
+     "metadata": {
+      "cellLabel": "Out[20]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {
+    "timing": {
+     "startTime": 1648561706402,
+     "endTime": 1648561706528
+    },
+    "executionOrder": 20,
+    "success": true
+   }
+  },
+  {
+   "kind": 2,
+   "value": "f[3m+2]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><w>1</w><w>+</w><wsup><w></w><w>10</w><w><wrow><w></w><w>2</w><w>+</w><wrow><w></w><w>3</w><w></w><w>m</w></wrow></wrow></w></wsup><w>+</w><wsup><w></w><w>10</w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>2</w><w>+</w><wrow><w></w><w>3</w><w></w><w>m</w></wrow></wrow><wb>)</wb></wrow></wrow></w></wsup></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "1 + 10^(2 + 3*m) + 10^(2*(2 + 3*m))",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "5ed4d01d-8212-4f53-b231-05bf65e17219",
+     "metadata": {
+      "cellLabel": "Out[25]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {
+    "timing": {
+     "startTime": 1648562146775,
+     "endTime": 1648562146901
+    },
+    "executionOrder": 25,
+    "success": true
+   }
+  },
+  {
+   "kind": 2,
+   "value": "10101/37",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><w>273</w></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "273",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "869fbe84-5cea-41d4-b758-b9fa753f22b3",
+     "metadata": {
+      "cellLabel": "Out[26]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {
+    "timing": {
+     "startTime": 1648562178349,
+     "endTime": 1648562178475
+    },
+    "executionOrder": 26,
+    "success": true
+   }
+  },
+  {
+   "kind": 2,
+   "value": "",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  }
+ ]
+}

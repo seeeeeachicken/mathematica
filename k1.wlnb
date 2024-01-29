@@ -1,0 +1,534 @@
+{
+ "cells": [
+  {
+   "kind": 2,
+   "value": "ExpandNCM[(h : NonCommutativeMultiply)[a___, b_Plus, c___]] := \n Distribute[h[a, b, c], Plus, h, Plus, ExpandNCM[h[##]] &]\nExpandNCM[(h : NonCommutativeMultiply)[a___, b_Times, c___]] := \n Most[b] ExpandNCM[\n   h[a, Last[b], c]] (* last must be a noncommutative variable *)\n\nExpandNCM[a_] := ExpandAll[a]\nExpandNCM[Plus[a_, b__]] := ExpandNCM[a] + ExpandNCM[Plus[b]];\nExpandNCM[Times[a_, b__]] := Expand[ExpandNCM[a] ExpandNCM[Times[b]]];\n\nUnprotect[NonCommutativeMultiply];\nClearAll[NonCommutativeMultiply]; \nSetAttributes[NonCommutativeMultiply, OneIdentity];\nNonCommutativeMultiply[a_] := a;\nNonCommutativeMultiply[a___, x_?NumericQ, b___] := x a ** b;\nSetAttributes[NonCommutativeMultiply, Flat];\nNonCommutativeMultiply[a___, x^c_., x^d_., b___] := \n  a ** x^(c + d) ** b;\nNonCommutativeMultiply[a___, y^c_., y^d_., b___] := \n  a ** y^(c + d) ** b;\n  \nXYtoZ[Times[a_, b__]] := Expand[XYtoZ[a] XYtoZ[Times[b]]];\nXYtoZ[Plus[a_, b__]] := XYtoZ[a] + XYtoZ[Plus[b]];\nXYtoZ[NonCommutativeMultiply[x^a_., y^b_., c___]] := \n  Subscript[z, a + 1] ** XYtoZ[y^(b - 1) ** c];\nXYtoZ[NonCommutativeMultiply[y^b_., c___]] := \n  Subscript[z, 1] ** XYtoZ[y^(b - 1) ** c];\nXYtoZ[y^b_.] := Subscript[z, 1] ** XYtoZ[y^(b - 1)];\nXYtoZ[a_] := a;\nZtoXY[a_] := a /. Subscript[z, p_] -> x^(p - 1) ** y;\n\nHarmonic[NonCommutativeMultiply[Subscript[z, p_], a__] | Subscript[z, \n    p_], NonCommutativeMultiply[Subscript[z, q_], b__] | Subscript[z, \n    q_]] := Subscript[z, p] ** (Harmonic[a, Subscript[z, q] ** b]) + \n   Subscript[z, q] ** (Harmonic[Subscript[z, p] ** a, b]) + \n   Subscript[z, p + q] ** (Harmonic[a, b]);\nHarmonic[a_] := a;\nHarmonic[] = 1;\n\nShuffle[NonCommutativeMultiply[x_Symbol^a_., c___] | x_Symbol^a_., \n   NonCommutativeMultiply[y_Symbol^b_., d___] | y_Symbol^b_.] := \n  x ** (Shuffle[x^(a - 1) ** c, y^b ** d]) + \n   y ** (Shuffle[x^a ** c, y^(b - 1) ** d]);\n   \nShuffle[Plus[x_Symbol^a_.,y_Symbol^b_.]| x_Symbol^a_.| y_Symbol^b_.,z_Symbol^c_.| z_Symbol^c_.]:=Shuffle[x^a,z^c]+Shuffle[y^b,z^c]\nShuffle[Times[x_Symbol^a_., c___] | x_Symbol^a_., \n    Times[y_Symbol^b_., d___] | y_Symbol^b_.] := d*c*Shuffle[x^a,y^b];\nShuffle[a_] := a;\nShuffle[a_?NumericQ, b_] := a b;\nShuffle[a_, b_?NumericQ] := a b;\nShuffle[] = 1;\n\nRegsha[Times[a_, b__]] := Expand[Regsha[a] Regsha[Times[b]]];\nRegsha[Plus[a_, b__]] := Regsha[a] + Regsha[Plus[b]];\nRegsha[NonCommutativeMultiply[y^b_., x^a_., c___]] := (-1)^b x ** \n    Shuffle[y^b, x^(a - 1) ** c];\nRegsha[a_] := a;",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Rtest[i1_,j1_]:=\nSubscript[\\[Lambda],1]^i1 Subscript[\\[Xi],1]^j1 y**Shuffle[y^i1,x^j1]//ExpandNCM;\n\nLtest[i2_,j2_]:=\nSubscript[\\[Lambda],2]^i2 Subscript[\\[Xi],2]^j2 y**Shuffle[y^i2,x^j2]//ExpandNCM;\n\nLHS[i1_,i2_,j1_,j2_]:=Shuffle[Rtest[i1,j1],Ltest[i2,j2]]//ExpandNCM;",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "R1[i1_,i2_,j1_,j2_]:=\nSubscript[\\[Lambda],1]^i1 (Subscript[\\[Lambda],1]+Subscript[\\[Lambda],2])^i2 Subscript[\\[Xi],1]^j1(Subscript[\\[Xi],1]+Subscript[\\[Xi],2])^j2 y**Shuffle[y^i1,x^j1]**y**Shuffle[y^i2,x^j2]//ExpandNCM; \n\nR2[i1_,i2_,j1_,j2_]:=\n(Subscript[\\[Lambda],1]+Subscript[\\[Lambda],2])^i1 (Subscript[\\[Lambda],2])^i2 (Subscript[\\[Xi],1]+Subscript[\\[Xi],2])^j1(Subscript[\\[Xi],2])^j2 y**Shuffle[y^i1,x^j1]**y**Shuffle[y^i2,x^j2]//ExpandNCM;\n\nRHS[i1_,i2_,j1_,j2_]:=R1[i1,i2,j1,j2]+R2[i1,i2,j1,j2]//ExpandNCM\n\nDLR[i1_,i2_,j1_,j2_]:=RHS[i1,i2,j1,j2]-LHS[i1,i2,j1,j2]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Shuffle[y**x,y**x]//ExpandNCM",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wrow><w></w><w>4</w><w></w><wrow><w></w><wsup><w></w><w>y</w><w><w>2</w></w></wsup><w>**</w><wsup><w></w><w>x</w><w><w>2</w></w></wsup></wrow></wrow><w>+</w><wrow><w></w><w>2</w><w></w><wrow><w></w><w>y</w><w>**</w><w>x</w><w>**</w><w>y</w><w>**</w><w>x</w></wrow></wrow></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "4*y^2**x^2 + 2*y**x**y**x",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "99d78e7a-13ee-4dd1-ae0a-a0a581cff9f4",
+     "metadata": {
+      "cellLabel": "Out[167]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "list={19,12,7,11,17};\nafo4[m_]:=m*45/4//N;\nafo3[m_]:=m*45/3//N",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "afo4[list]\nafo3[list]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wb>{</wb><wrow><w></w><w>213.75</w><w>,</w><w>135.</w><w>,</w><w>78.75</w><w>,</w><w>123.75</w><w>,</w><w>191.25</w></wrow><wb>}</wb></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "{213.75, 135., 78.75, 123.75, 191.25}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "bde79a12-2993-4019-a6d0-71752b52f88a",
+     "metadata": {
+      "cellLabel": "Out[171]= ",
+      "isBoxData": false
+     }
+    },
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wb>{</wb><wrow><w></w><w>285.</w><w>,</w><w>180.</w><w>,</w><w>105.</w><w>,</w><w>165.</w><w>,</w><w>255.</w></wrow><wb>}</wb></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "{285., 180., 105., 165., 255.}",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "b318c692-27d9-4d5e-a57e-852f5555622f",
+     "metadata": {
+      "cellLabel": "Out[172]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "test[a_,b_,c_]:=Solve[c^2==a^2+b^2-2*a*b*t,{t}]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "t1[x_,y_]:=(1-E^y)/(1-E^(x+y));\ntk[x_,y_]:=E^x (1-E^y)/(1-E^(x+y));",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "M={{D[t1[x,y],x],D[t1[x,y],y]},{D[tk[x,y],x],D[tk[x,y],y]}}//MatrixForm",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wb>(</wb><w>⁠</w><wgrid style=\"grid-template-columns:repeat(2,max-content);\"><w><wfrac><w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac></w><w><wrow><w></w><wfrac><w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow></w></w></wfrac></wrow></w><w><wrow><w></w><wfrac><w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><wrow><w></w><w>2</w><w></w><w>x</w></wrow><w>+</w><w>y</w></wrow></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wsup><w></w><w>𝕖</w><w><w>x</w></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow></w></w></wfrac></wrow></w><w><wrow><w></w><wfrac><w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><wrow><w></w><w>2</w><w></w><w>x</w></wrow><w>+</w><w>y</w></wrow></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow></w></w></wfrac></wrow></w></wgrid><w>⁠</w><wb>)</wb></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "MatrixForm[{{(E^(x + y)*(1 - E^y))/(1 - E^(x + y))^2, (E^(x + y)*(1 - E^y))/(1 - E^(x + y))^2 - E^y/(1 - E^(x + y))}, {(E^(2*x + y)*(1 - E^y))/(1 - E^(x + y))^2 + (E^x*(1 - E^y))/(1 - E^(x + y)), (E^(2*x + y)*(1 - E^y))/(1 - E^(x + y))^2 - E^(x + y)/(1 - E^(x + y))}}]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "b1b463d6-fb65-4767-a514-d5651c82acc9",
+     "metadata": {
+      "cellLabel": "Out[176]//MatrixForm= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "FO=D[t1[x,y],x]*D[tk[x,y]x]-D[t1[x,y],y]*D[tk[x,y],x]//Simplify",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><w>-</w><wfrac><w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>+</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><w>x</w></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><w>x</w></wrow><wb>)</wb></wrow></wrow><w>-</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup><w></w><w>x</w></wrow><w>+</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow><wb>)</wb></wrow></wrow></w></wsup><w></w><w>x</w></wrow><w>-</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><wrow><w></w><w>2</w><w></w><w>x</w></wrow><w>+</w><w>y</w></wrow></w></wsup><w></w><w>x</w></wrow></wrow><wb>)</wb></wrow></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "-((E^(x + y)*(-1 + E^y)*(1 + E^x*(-1 + x) - E^(x + y)*x + E^(2*(x + y))*x - E^(2*x + y)*x))/(-1 + E^(x + y))^4)",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "d06664aa-eaac-4eb3-845a-5230f282cb4c",
+     "metadata": {
+      "cellLabel": "Out[177]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Numerator[FO]//Expand//Factor",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wrow><w></w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>x</w></w></wsup><w>+</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><w>x</w></w></wsup><w></w><w>x</w></wrow><w>-</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup><w></w><w>x</w></wrow><w>-</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><wrow><w></w><w>2</w><w></w><w>x</w></wrow><w>+</w><w>y</w></wrow></w></wsup><w></w><w>x</w></wrow><w>+</w><wrow><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><wrow><w></w><w>2</w><w></w><w>x</w></wrow><w>+</w><wrow><w></w><w>2</w><w></w><w>y</w></wrow></wrow></w></wsup><w></w><w>x</w></wrow></wrow><wb>)</wb></wrow></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "-(E^(x + y)*(-1 + E^y)*(1 - E^x + E^x*x - E^(x + y)*x - E^(2*x + y)*x + E^(2*x + 2*y)*x))",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "5e079c0a-0253-446c-befb-3932bb121af5",
+     "metadata": {
+      "cellLabel": "Out[178]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "D[t1[x,y]*tk[x,y],x]\nD[t1[x,y]*tk[x,y],y]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wfrac><w><wrow><w></w><w>2</w><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><wrow><w></w><w>2</w><w></w><w>x</w></wrow><w>+</w><w>y</w></wrow></w></wsup><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wsup><w></w><w>𝕖</w><w><w>x</w></w></wsup><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(2*E^(2*x + y)*(1 - E^y)^2)/(1 - E^(x + y))^3 + (E^x*(1 - E^y)^2)/(1 - E^(x + y))^2",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "95f01820-b7fc-4369-9c75-d44a8c94e4ad",
+     "metadata": {
+      "cellLabel": "Out[179]= ",
+      "isBoxData": false
+     }
+    },
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wfrac><w><wrow><w></w><w>2</w><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><wrow><w></w><w>2</w><w></w><w>x</w></wrow><w>+</w><w>y</w></wrow></w></wsup><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac><w>-</w><wfrac><w><wrow><w></w><w>2</w><w></w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>x</w><w>+</w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(2*E^(2*x + y)*(1 - E^y)^2)/(1 - E^(x + y))^3 - (2*E^(x + y)*(1 - E^y))/(1 - E^(x + y))^2",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "8b3f4004-0965-483f-a6f0-7e5e5805c0cf",
+     "metadata": {
+      "cellLabel": "Out[180]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "(* 古庄order *)\nx[t1_,tk_]:=Log[tk/t1]\ny[t1_,tk_]:=Log[(1-t1)/(1-tk)]\n\n(* unti古庄order *)\n(* xx[t1_,tk_]:=Log[t1/tk];\ny[t1_,tk_]:=Log[(1-tk)/(1-t1)]; *)\n",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "{{D[x[t1,tk],t1],D[x[t1,tk],tk]},{D[y[t1,tk],t1],D[y[t1,tk],tk]}}//Det",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>t1</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><w>tk</w></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><w>t1</w></wrow><wb>)</wb></wrow><w></w><w>tk</w></wrow></w></w></wfrac></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "1/(t1*(1 - tk)) - 1/((1 - t1)*tk)",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "10a279d7-ab87-4924-b3eb-9e85aff5be08",
+     "metadata": {
+      "cellLabel": "Out[237]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Exp[x[t1,tk]]*Exp[y[t1,tk]]-1//Together",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wfrac><w><wrow><w></w><w>t1</w><w>-</w><w>tk</w></wrow></w><w><w></w><w><wrow><w></w><w>t1</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><w>tk</w></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(t1 - tk)/(t1*(-1 + tk))",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "b5f9ae75-2fcd-4d22-a2be-924a329e72bc",
+     "metadata": {
+      "cellLabel": "Out[224]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "1-Exp[x[t1,tk]]*Exp[y[t1,tk]]//Together",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><w>t1</w></wrow><w>+</w><w>tk</w></wrow></w><w><w></w><w><wrow><w></w><w>t1</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><w>tk</w></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(-t1 + tk)/(t1*(-1 + tk))",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "23e3f031-0092-43ad-91ea-1aa16456aa0a",
+     "metadata": {
+      "cellLabel": "Out[231]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "x[b1_,bk_]:=Log[bk/b1]\ny[b1_,bk_]:=Log[(1-bk)/(1-b1)]",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "{{D[x[b1,bk],b1],D[x[b1,bk],bk]},{D[y[b1,bk],b1],D[y[b1,bk],bk]}}//Det//Together",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><w>b1</w></wrow><w>+</w><w>bk</w></wrow></w><w><w></w><w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><w>b1</w></wrow><wb>)</wb></wrow><w></w><w>b1</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><w>bk</w></wrow><wb>)</wb></wrow><w></w><w>bk</w></wrow></w></w></wfrac></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(-b1 + bk)/((-1 + b1)*b1*(-1 + bk)*bk)",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "5c117e49-89f3-4edd-a8d8-4f9d611906a3",
+     "metadata": {
+      "cellLabel": "Out[245]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Exp[x[b1,bk]]*Exp[y[b1,bk]]-1//Together",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wfrac><w><wrow><w></w><w>b1</w><w>-</w><wsup><w></w><w>b1</w><w><w>2</w></w></wsup><w>-</w><w>bk</w><w>+</w><wsup><w></w><w>bk</w><w><w>2</w></w></wsup></wrow></w><w><w></w><w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><w>b1</w></wrow><wb>)</wb></wrow><w></w><w>b1</w></wrow></w></w></wfrac></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(b1 - b1^2 - bk + bk^2)/((-1 + b1)*b1)",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "5b0fdf89-165b-486e-bcd0-6ba61d1b5179",
+     "metadata": {
+      "cellLabel": "Out[249]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Exp[x[b1,bk]]/Exp[y[b1,bk]]-1//Together",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wfrac><w><wrow><w></w><w>b1</w><w>-</w><w>bk</w></wrow></w><w><w></w><w><wrow><w></w><w>b1</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><w>bk</w></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "(b1 - bk)/(b1*(-1 + bk))",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "328daa5a-954f-43ea-ad0f-342d78cf3f4d",
+     "metadata": {
+      "cellLabel": "Out[250]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "x[b1,bk]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><w>Log</w><wrow><w></w><wb>[</wb><wfrac><w><w>bk</w></w><w><w></w><w><w>b1</w></w></w></wfrac><wb>]</wb></wrow></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "Log[bk/b1]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "1206b8b6-cd5f-434b-b068-71d39b93a8ba",
+     "metadata": {
+      "cellLabel": "Out[251]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "F[x_,y_]:=(E^x(1-E^y))/((E^x-E^y)(E^x-1))",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Series[F[x,y],{x,0,10}]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><w>x</w></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><w>1</w><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>+</w><wrow><w></w><w>10</w><w></w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><wrow><w></w><w>2</w><w></w><w>y</w></wrow></w></wsup></wrow><wb>)</wb></wrow><w></w><w>x</w></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac></wrow><w>-</w><wfrac><w><wrow><w></w><w>1</w><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>2</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow><w>-</w><wfrac><w><wrow><w></w><w>1</w><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w><w><w></w><w><wrow><w></w><w>24</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>24</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>3</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>24</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>2</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>4</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>30240</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><w>1</w><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w><w><w></w><w><wrow><w></w><w>1440</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>24</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>2</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>13</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>31</w></w><w><w></w><w><wrow><w></w><w>360</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>5</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>30240</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac></wrow><w>-</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>2</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>13</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>31</w></w><w><w></w><w><wrow><w></w><w>360</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>10</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>43</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>40</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>5040</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>6</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>1209600</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow><w>-</w><wfrac><w><wrow><w></w><w>1</w><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w><w><w></w><w><wrow><w></w><w>60480</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>24</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>13</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>31</w></w><w><w></w><w><wrow><w></w><w>360</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>10</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>43</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>40</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>5040</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>19</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>25</w></w><w><w></w><w><wrow><w></w><w>8</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>81</w></w><w><w></w><w><wrow><w></w><w>80</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>23</w></w><w><w></w><w><wrow><w></w><w>160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>127</w></w><w><w></w><w><wrow><w></w><w>20160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>40320</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>7</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>1209600</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>30240</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>-</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>2</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>10</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>43</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>40</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>5040</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>19</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>25</w></w><w><w></w><w><wrow><w></w><w>8</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>81</w></w><w><w></w><w><wrow><w></w><w>80</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>23</w></w><w><w></w><w><wrow><w></w><w>160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>127</w></w><w><w></w><w><wrow><w></w><w>20160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>40320</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>9</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>4</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>77</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>21</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>331</w></w><w><w></w><w><wrow><w></w><w>144</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>37</w></w><w><w></w><w><wrow><w></w><w>72</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>605</w></w><w><w></w><w><wrow><w></w><w>12096</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>17</w></w><w><w></w><w><wrow><w></w><w>12096</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>362880</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>8</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>47900160</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><w>1</w><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w><w><w></w><w><wrow><w></w><w>2419200</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>24</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>30240</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>-</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>13</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>31</w></w><w><w></w><w><wrow><w></w><w>360</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>7</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>19</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>25</w></w><w><w></w><w><wrow><w></w><w>8</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>81</w></w><w><w></w><w><wrow><w></w><w>80</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>23</w></w><w><w></w><w><wrow><w></w><w>160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>127</w></w><w><w></w><w><wrow><w></w><w>20160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>40320</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>9</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>4</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>77</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>21</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>331</w></w><w><w></w><w><wrow><w></w><w>144</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>37</w></w><w><w></w><w><wrow><w></w><w>72</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>605</w></w><w><w></w><w><wrow><w></w><w>12096</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>17</w></w><w><w></w><w><wrow><w></w><w>12096</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>362880</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>10</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>9</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>9</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>25</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>49</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1087</w></w><w><w></w><w><wrow><w></w><w>240</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>45</w></w><w><w></w><w><wrow><w></w><w>32</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>6821</w></w><w><w></w><w><wrow><w></w><w>30240</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>311</w></w><w><w></w><w><wrow><w></w><w>20160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>73</w></w><w><w></w><w><wrow><w></w><w>259200</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>3628800</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>9</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>47900160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><w>1</w></wrow><w>+</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac></wrow><w>-</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1209600</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>2</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>30240</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>-</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>3</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>10</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>43</w></w><w><w></w><w><wrow><w></w><w>120</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>40</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>5040</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>720</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>9</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>4</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>77</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>21</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>331</w></w><w><w></w><w><wrow><w></w><w>144</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>37</w></w><w><w></w><w><wrow><w></w><w>72</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>605</w></w><w><w></w><w><wrow><w></w><w>12096</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>17</w></w><w><w></w><w><wrow><w></w><w>12096</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>362880</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>12</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>10</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>9</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>9</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>25</w></w><w><w></w><w><wrow><w></w><w>3</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>49</w></w><w><w></w><w><wrow><w></w><w>6</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>1087</w></w><w><w></w><w><wrow><w></w><w>240</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>45</w></w><w><w></w><w><wrow><w></w><w>32</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>6821</w></w><w><w></w><w><wrow><w></w><w>30240</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>311</w></w><w><w></w><w><wrow><w></w><w>20160</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>73</w></w><w><w></w><w><wrow><w></w><w>259200</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>3628800</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><wrow><w></w><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>11</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac class=\"script\"><w><w>5</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>10</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>21</w></w><w><w></w><w><wrow><w></w><w>2</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>9</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>12</w></w><w><w></w><w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>8</w></w></wsup></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1939</w></w><w><w></w><w><wrow><w></w><w>240</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>7</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>259</w></w><w><w></w><w><wrow><w></w><w>80</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>6</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>2243</w></w><w><w></w><w><wrow><w></w><w>3024</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>5</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>265</w></w><w><w></w><w><wrow><w></w><w>3024</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>4</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>2591</w></w><w><w></w><w><wrow><w></w><w>604800</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>3</w></w></wsup></wrow></w></w></wfrac><w>+</w><wfrac class=\"script\"><w><w>31</w></w><w><w></w><w><wrow><w></w><w>604800</w><w></w><wsup><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow><w><w>2</w></w></wsup></wrow></w></w></wfrac><w>-</w><wfrac class=\"script\"><w><w>1</w></w><w><w></w><w><wrow><w></w><w>39916800</w><w></w><wrow><w></w><wb>(</wb><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow><wb>)</wb></wrow></wrow></w></w></wfrac></wrow></w><w><w></w><w><wrow><w></w><w>1</w><w>-</w><wsup><w></w><w>𝕖</w><w><w>y</w></w></wsup></wrow></w></w></wfrac></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>10</w></w></wsup></wrow><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>x</w><wb>]</wb></wrow></wrow><w><w>11</w></w></wsup></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "SeriesData[x, 0, {1, (1 + E^y)/(2*(-1 + E^y)), (1 + 10*E^y + E^(2*y))/(12*(-1 + E^y)^2), (1 - E^y)*(-1/12*1/(-1 + E^y)^2 - (1 + E^y)/(4*(-1 + E^y)^3) + (-(1 - E^y)^(-3) + (1 - E^y)^(-2) - 1/(6*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(-1/720*1/(1 - E^y) - (1 + E^y)/(24*(-1 + E^y)^3) + (-(1 - E^y)^(-3) + (1 - E^y)^(-2) - 1/(6*(1 - E^y)))/(2*(1 - E^y)) + ((1 - E^y)^(-4) - 3/(2*(1 - E^y)^3) + 7/(12*(1 - E^y)^2) - 1/(24*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(1/(720*(-1 + E^y)^2) + (-(1 - E^y)^(-3) + (1 - E^y)^(-2) - 1/(6*(1 - E^y)))/(12*(1 - E^y)) + ((1 - E^y)^(-4) - 3/(2*(1 - E^y)^3) + 7/(12*(1 - E^y)^2) - 1/(24*(1 - E^y)))/(2*(1 - E^y)) + (-(1 - E^y)^(-5) + 2/(1 - E^y)^4 - 5/(4*(1 - E^y)^3) + 1/(4*(1 - E^y)^2) - 1/(120*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(1/(30240*(1 - E^y)) + (1 + E^y)/(1440*(-1 + E^y)^3) + ((1 - E^y)^(-4) - 3/(2*(1 - E^y)^3) + 7/(12*(1 - E^y)^2) - 1/(24*(1 - E^y)))/(12*(1 - E^y)) + (-(1 - E^y)^(-5) + 2/(1 - E^y)^4 - 5/(4*(1 - E^y)^3) + 1/(4*(1 - E^y)^2) - 1/(120*(1 - E^y)))/(2*(1 - E^y)) + ((1 - E^y)^(-6) - 5/(2*(1 - E^y)^5) + 13/(6*(1 - E^y)^4) - 3/(4*(1 - E^y)^3) + 31/(360*(1 - E^y)^2) - 1/(720*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(-1/30240*1/(-1 + E^y)^2 - (-(1 - E^y)^(-3) + (1 - E^y)^(-2) - 1/(6*(1 - E^y)))/(720*(1 - E^y)) + (-(1 - E^y)^(-5) + 2/(1 - E^y)^4 - 5/(4*(1 - E^y)^3) + 1/(4*(1 - E^y)^2) - 1/(120*(1 - E^y)))/(12*(1 - E^y)) + ((1 - E^y)^(-6) - 5/(2*(1 - E^y)^5) + 13/(6*(1 - E^y)^4) - 3/(4*(1 - E^y)^3) + 31/(360*(1 - E^y)^2) - 1/(720*(1 - E^y)))/(2*(1 - E^y)) + (-(1 - E^y)^(-7) + 3/(1 - E^y)^6 - 10/(3*(1 - E^y)^5) + 5/(3*(1 - E^y)^4) - 43/(120*(1 - E^y)^3) + 1/(40*(1 - E^y)^2) - 1/(5040*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(-1/1209600*1/(1 - E^y) - (1 + E^y)/(60480*(-1 + E^y)^3) - ((1 - E^y)^(-4) - 3/(2*(1 - E^y)^3) + 7/(12*(1 - E^y)^2) - 1/(24*(1 - E^y)))/(720*(1 - E^y)) + ((1 - E^y)^(-6) - 5/(2*(1 - E^y)^5) + 13/(6*(1 - E^y)^4) - 3/(4*(1 - E^y)^3) + 31/(360*(1 - E^y)^2) - 1/(720*(1 - E^y)))/(12*(1 - E^y)) + (-(1 - E^y)^(-7) + 3/(1 - E^y)^6 - 10/(3*(1 - E^y)^5) + 5/(3*(1 - E^y)^4) - 43/(120*(1 - E^y)^3) + 1/(40*(1 - E^y)^2) - 1/(5040*(1 - E^y)))/(2*(1 - E^y)) + ((1 - E^y)^(-8) - 7/(2*(1 - E^y)^7) + 19/(4*(1 - E^y)^6) - 25/(8*(1 - E^y)^5) + 81/(80*(1 - E^y)^4) - 23/(160*(1 - E^y)^3) + 127/(20160*(1 - E^y)^2) - 1/(40320*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(1/(1209600*(-1 + E^y)^2) + (-(1 - E^y)^(-3) + (1 - E^y)^(-2) - 1/(6*(1 - E^y)))/(30240*(1 - E^y)) - (-(1 - E^y)^(-5) + 2/(1 - E^y)^4 - 5/(4*(1 - E^y)^3) + 1/(4*(1 - E^y)^2) - 1/(120*(1 - E^y)))/(720*(1 - E^y)) + (-(1 - E^y)^(-7) + 3/(1 - E^y)^6 - 10/(3*(1 - E^y)^5) + 5/(3*(1 - E^y)^4) - 43/(120*(1 - E^y)^3) + 1/(40*(1 - E^y)^2) - 1/(5040*(1 - E^y)))/(12*(1 - E^y)) + ((1 - E^y)^(-8) - 7/(2*(1 - E^y)^7) + 19/(4*(1 - E^y)^6) - 25/(8*(1 - E^y)^5) + 81/(80*(1 - E^y)^4) - 23/(160*(1 - E^y)^3) + 127/(20160*(1 - E^y)^2) - 1/(40320*(1 - E^y)))/(2*(1 - E^y)) + (-(1 - E^y)^(-9) + 4/(1 - E^y)^8 - 77/(12*(1 - E^y)^7) + 21/(4*(1 - E^y)^6) - 331/(144*(1 - E^y)^5) + 37/(72*(1 - E^y)^4) - 605/(12096*(1 - E^y)^3) + 17/(12096*(1 - E^y)^2) - 1/(362880*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(1/(47900160*(1 - E^y)) + (1 + E^y)/(2419200*(-1 + E^y)^3) + ((1 - E^y)^(-4) - 3/(2*(1 - E^y)^3) + 7/(12*(1 - E^y)^2) - 1/(24*(1 - E^y)))/(30240*(1 - E^y)) - ((1 - E^y)^(-6) - 5/(2*(1 - E^y)^5) + 13/(6*(1 - E^y)^4) - 3/(4*(1 - E^y)^3) + 31/(360*(1 - E^y)^2) - 1/(720*(1 - E^y)))/(720*(1 - E^y)) + ((1 - E^y)^(-8) - 7/(2*(1 - E^y)^7) + 19/(4*(1 - E^y)^6) - 25/(8*(1 - E^y)^5) + 81/(80*(1 - E^y)^4) - 23/(160*(1 - E^y)^3) + 127/(20160*(1 - E^y)^2) - 1/(40320*(1 - E^y)))/(12*(1 - E^y)) + (-(1 - E^y)^(-9) + 4/(1 - E^y)^8 - 77/(12*(1 - E^y)^7) + 21/(4*(1 - E^y)^6) - 331/(144*(1 - E^y)^5) + 37/(72*(1 - E^y)^4) - 605/(12096*(1 - E^y)^3) + 17/(12096*(1 - E^y)^2) - 1/(362880*(1 - E^y)))/(2*(1 - E^y)) + ((1 - E^y)^(-10) - 9/(2*(1 - E^y)^9) + 25/(3*(1 - E^y)^8) - 49/(6*(1 - E^y)^7) + 1087/(240*(1 - E^y)^6) - 45/(32*(1 - E^y)^5) + 6821/(30240*(1 - E^y)^4) - 311/(20160*(1 - E^y)^3) + 73/(259200*(1 - E^y)^2) - 1/(3628800*(1 - E^y)))/(1 - E^y)), (1 - E^y)*(-1/47900160*1/(-1 + E^y)^2 - (-(1 - E^y)^(-3) + (1 - E^y)^(-2) - 1/(6*(1 - E^y)))/(1209600*(1 - E^y)) + (-(1 - E^y)^(-5) + 2/(1 - E^y)^4 - 5/(4*(1 - E^y)^3) + 1/(4*(1 - E^y)^2) - 1/(120*(1 - E^y)))/(30240*(1 - E^y)) - (-(1 - E^y)^(-7) + 3/(1 - E^y)^6 - 10/(3*(1 - E^y)^5) + 5/(3*(1 - E^y)^4) - 43/(120*(1 - E^y)^3) + 1/(40*(1 - E^y)^2) - 1/(5040*(1 - E^y)))/(720*(1 - E^y)) + (-(1 - E^y)^(-9) + 4/(1 - E^y)^8 - 77/(12*(1 - E^y)^7) + 21/(4*(1 - E^y)^6) - 331/(144*(1 - E^y)^5) + 37/(72*(1 - E^y)^4) - 605/(12096*(1 - E^y)^3) + 17/(12096*(1 - E^y)^2) - 1/(362880*(1 - E^y)))/(12*(1 - E^y)) + ((1 - E^y)^(-10) - 9/(2*(1 - E^y)^9) + 25/(3*(1 - E^y)^8) - 49/(6*(1 - E^y)^7) + 1087/(240*(1 - E^y)^6) - 45/(32*(1 - E^y)^5) + 6821/(30240*(1 - E^y)^4) - 311/(20160*(1 - E^y)^3) + 73/(259200*(1 - E^y)^2) - 1/(3628800*(1 - E^y)))/(2*(1 - E^y)) + (-(1 - E^y)^(-11) + 5/(1 - E^y)^10 - 21/(2*(1 - E^y)^9) + 12/(1 - E^y)^8 - 1939/(240*(1 - E^y)^7) + 259/(80*(1 - E^y)^6) - 2243/(3024*(1 - E^y)^5) + 265/(3024*(1 - E^y)^4) - 2591/(604800*(1 - E^y)^3) + 31/(604800*(1 - E^y)^2) - 1/(39916800*(1 - E^y)))/(1 - E^y))}, -1, 11, 1]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "45787a2a-6c4f-45e3-a99b-c0f50c9341a7",
+     "metadata": {
+      "cellLabel": "Out[256]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Series[((1-E^(y-x))(1-E^(-x)))/(1-E^y),{x,0,5},{y,0,5}]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><w>x</w><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><w>y</w></w></w></wfrac></wrow><w>-</w><w>1</w><w>-</w><wfrac><w><w>y</w></w><w><w></w><w><w>12</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></w><w><w></w><w><w>720</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w><w><w></w><w><w>30240</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>2</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><w>y</w></w></w></wfrac><w>+</w><wfrac><w><w>2</w></w><w><w></w><w><w>3</w></w></w></wfrac><w>+</w><wfrac><w><w>y</w></w><w><w></w><w><w>12</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></w><w><w></w><w><w>720</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w><w><w></w><w><w>30240</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>3</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>7</w></w><w><w></w><w><wrow><w></w><w>12</w><w></w><w>y</w></wrow></w></w></wfrac></wrow><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><w>3</w></w></w></wfrac><w>-</w><wfrac><w><wrow><w></w><w>7</w><w></w><w>y</w></wrow></w><w><w></w><w><w>144</w></w></w></wfrac><w>+</w><wfrac><w><wrow><w></w><w>7</w><w></w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></wrow></w><w><w></w><w><w>8640</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w><w><w></w><w><w>51840</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>4</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wrow><w></w><w>4</w><w></w><w>y</w></wrow></w></w></wfrac><w>+</w><wfrac><w><w>2</w></w><w><w></w><w><w>15</w></w></w></wfrac><w>+</w><wfrac><w><w>y</w></w><w><w></w><w><w>48</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></w><w><w></w><w><w>2880</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w><w><w></w><w><w>120960</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>5</w></w></wsup></wrow><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>x</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "SeriesData[x, 0, {1, SeriesData[y, 0, {-1, -1, -1/12, 0, 1/720, 0, -1/30240}, -1, 6, 1], SeriesData[y, 0, {1, 2/3, 1/12, 0, -1/720, 0, 1/30240}, -1, 6, 1], SeriesData[y, 0, {-7/12, -1/3, -7/144, 0, 7/8640, 0, -1/51840}, -1, 6, 1], SeriesData[y, 0, {1/4, 2/15, 1/48, 0, -1/2880, 0, 1/120960}, -1, 6, 1]}, 1, 6, 1]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "861885ef-e438-46a2-8a64-2a6108197fd6",
+     "metadata": {
+      "cellLabel": "Out[258]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "Series[1/(E^(x+y)-1),{x,0,5},{y,0,5}]",
+   "languageId": "wolfram",
+   "outputs": [
+    {
+     "items": [
+      {
+       "data": "<div class=\"wexpr\"><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><w>y</w></w></w></wfrac><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><w>2</w></w></w></wfrac><w>+</w><wfrac><w><w>y</w></w><w><w></w><w><w>12</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></w><w><w></w><w><w>720</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w><w><w></w><w><w>30240</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wsup><w></w><w>y</w><w><w>2</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac><w><w>1</w></w><w><w></w><w><w>12</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>2</w></w></wsup></w><w><w></w><w><w>240</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>4</w></w></wsup></w><w><w></w><w><w>6048</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><w>x</w></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></w></w></wfrac><w>-</w><wfrac><w><w>y</w></w><w><w></w><w><w>240</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></w><w><w></w><w><w>3024</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w><w><w></w><w><w>57600</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>2</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wsup><w></w><w>y</w><w><w>4</w></w></wsup></w></w></wfrac></wrow><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><w>720</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>2</w></w></wsup></w><w><w></w><w><w>3024</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>4</w></w></wsup></w><w><w></w><w><w>34560</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>3</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wfrac><w><w>1</w></w><w><w></w><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w></w></wfrac><w>+</w><wfrac><w><w>y</w></w><w><w></w><w><w>6048</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>3</w></w></wsup></w><w><w></w><w><w>34560</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>5</w></w></wsup></w><w><w></w><w><w>380160</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>4</w></w></wsup></wrow><w>+</w><wrow><w></w><wrow><w></w><wb>(</wb><wrow><w></w><wrow><w></w><w>-</w><wfrac><w><w>1</w></w><w><w></w><w><wsup><w></w><w>y</w><w><w>6</w></w></wsup></w></w></wfrac></wrow><w>+</w><wfrac><w><w>1</w></w><w><w></w><w><w>30240</w></w></w></wfrac><w>-</w><wfrac><w><wsup><w></w><w>y</w><w><w>2</w></w></wsup></w><w><w></w><w><w>57600</w></w></w></wfrac><w>+</w><wfrac><w><wsup><w></w><w>y</w><w><w>4</w></w></wsup></w><w><w></w><w><w>380160</w></w></w></wfrac><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>y</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow><wb>)</wb></wrow><w></w><wsup><w></w><w>x</w><w><w>5</w></w></wsup></wrow><w>+</w><wsup><w></w><wrow><w></w><w>O</w><wrow><w></w><wb>[</wb><w>x</w><wb>]</wb></wrow></wrow><w><w>6</w></w></wsup></wrow></div>",
+       "mime": "x-application/wolfram-language-html"
+      },
+      {
+       "data": "SeriesData[x, 0, {SeriesData[y, 0, {1, -1/2, 1/12, 0, -1/720, 0, 1/30240}, -1, 6, 1], SeriesData[y, 0, {-1, 0, 1/12, 0, -1/240, 0, 1/6048}, -2, 6, 1], SeriesData[y, 0, {1, 0, 0, 0, -1/240, 0, 1/3024, 0, -1/57600}, -3, 6, 1], SeriesData[y, 0, {-1, 0, 0, 0, -1/720, 0, 1/3024, 0, -1/34560}, -4, 6, 1], SeriesData[y, 0, {1, 0, 0, 0, 0, 0, 1/6048, 0, -1/34560, 0, 1/380160}, -5, 6, 1], SeriesData[y, 0, {-1, 0, 0, 0, 0, 0, 1/30240, 0, -1/57600, 0, 1/380160}, -6, 6, 1]}, 0, 6, 1]",
+       "mime": "text/plain"
+      }
+     ],
+     "id": "e5b6c886-3b55-4b3d-9e4e-bfd476b0dadf",
+     "metadata": {
+      "cellLabel": "Out[259]= ",
+      "isBoxData": false
+     }
+    }
+   ],
+   "metadata": {},
+   "executionSummary": {}
+  },
+  {
+   "kind": 2,
+   "value": "",
+   "languageId": "wolfram",
+   "outputs": [],
+   "metadata": {},
+   "executionSummary": {}
+  }
+ ]
+}
